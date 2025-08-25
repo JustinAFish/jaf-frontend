@@ -188,7 +188,7 @@ export const useChatStore = create<ChatStore>()(
       // Add this function to fetch chats from the backend
       fetchUserChats: async () => {
         try {
-          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000/" || "https://ol1669x0xe.execute-api.us-east-1.amazonaws.com/Prod/";
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
           
           // Get token from localStorage
           const authStorageJson = localStorage.getItem('auth-storage');

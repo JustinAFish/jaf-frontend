@@ -50,7 +50,7 @@ export default function ChatPage() {
       }));
 
       // Send request to the backend
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000/" || "https://ol1669x0xe.execute-api.us-east-1.amazonaws.com/Prod/";
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
       // Get token from localStorage (temporarily disabled)
       // const authStorageJson = localStorage.getItem("auth-storage");
