@@ -1,4 +1,8 @@
 version: 1
+environment:
+  variables:
+    EMAIL_USER: $EMAIL_USER
+    EMAIL_PASSWORD: $EMAIL_PASSWORD
 frontend:
   phases:
     preBuild:
@@ -17,6 +21,8 @@ frontend:
       commands:
         - echo "Starting build process..."
         - echo "Environment variables for build:"
+        - echo "EMAIL_USER is set:" $(if [ -n "$EMAIL_USER" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "EMAIL_PASSWORD is set:" $(if [ -n "$EMAIL_PASSWORD" ]; then echo "YES"; else echo "NO"; fi)
         - echo "CLERK_SECRET_KEY is set:" $(if [ -n "$CLERK_SECRET_KEY" ]; then echo "YES"; else echo "NO"; fi)
         - npm run build
         - echo "Build completed successfully"
