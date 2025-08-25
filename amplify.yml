@@ -4,6 +4,11 @@ frontend:
     preBuild:
       commands:
         - nvm use 20
+        - echo "Checking environment variables..."
+        - echo "EMAIL_USER is set:" $(if [ -n "$EMAIL_USER" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "EMAIL_PASSWORD is set:" $(if [ -n "$EMAIL_PASSWORD" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "CLERK_SECRET_KEY is set:" $(if [ -n "$CLERK_SECRET_KEY" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is set:" $(if [ -n "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" ]; then echo "YES"; else echo "NO"; fi)
         - npm ci
     build:
       commands:
