@@ -1,8 +1,4 @@
 version: 1
-environment:
-  variables:
-    EMAIL_USER: $EMAIL_USER
-    EMAIL_PASSWORD: $EMAIL_PASSWORD
 frontend:
   phases:
     preBuild:
@@ -20,6 +16,13 @@ frontend:
     build:
       commands:
         - echo "Starting build process..."
+        - echo "Creating .env.production file for runtime environment variables..."
+        - env | grep -e EMAIL_USER >> .env.production
+        - env | grep -e EMAIL_PASSWORD >> .env.production
+        - env | grep -e CLERK_SECRET_KEY >> .env.production
+        - env | grep -e NEXT_PUBLIC_ >> .env.production
+        - echo "Contents of .env.production:"
+        - cat .env.production
         - echo "Environment variables for build:"
         - echo "EMAIL_USER is set:" $(if [ -n "$EMAIL_USER" ]; then echo "YES"; else echo "NO"; fi)
         - echo "EMAIL_PASSWORD is set:" $(if [ -n "$EMAIL_PASSWORD" ]; then echo "YES"; else echo "NO"; fi)
