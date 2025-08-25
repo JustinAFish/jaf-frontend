@@ -1,17 +1,10 @@
-// import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Commented out to disable middleware and test if it's causing 500 errors
-// const isProtectedRoute = createRouteMatcher(["/chat(.*)"]);
+const isProtectedRoute = createRouteMatcher(["/chat(.*)"]);
 
-// export default clerkMiddleware(async (auth, req) => {
-//   if (isProtectedRoute(req)) await auth.protect();
-// });
-
-// Minimal middleware that does nothing - just passes requests through
-export default function middleware() {
-  // No authentication or protection logic
-  return;
-}
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) await auth.protect();
+});
 
 export const config = {
   matcher: [
