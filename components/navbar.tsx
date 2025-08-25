@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
-// import { SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -109,9 +109,9 @@ export function Navbar() {
           </a>
         </div>
 
-        {/* <SignedIn>
+        <SignedIn>
           <UserButton />
-        </SignedIn> */}
+        </SignedIn>
       </NavbarItem>
     </NextUINavbar>
   );
