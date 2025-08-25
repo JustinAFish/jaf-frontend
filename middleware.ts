@@ -3,11 +3,14 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtectedRoute = createRouteMatcher(["/chat(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Add environment variable validation for debugging
+  if (!process.env.CLERK_SECRET_KEY) {
+    console.error('CLERK_SECRET_KEY is not available in middleware');
+    console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('CLERK')));
+  }
+
   if (isProtectedRoute(req)) {
-    const authObject = await auth();
-    if (!authObject.userId) {
-      return authObject.redirectToSignIn();
-    }
+    await auth.protect();
   }
 });
 
