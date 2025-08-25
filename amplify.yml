@@ -4,6 +4,8 @@ frontend:
     preBuild:
       commands:
         - nvm use 20
+        - echo "Node version:" && node --version
+        - echo "NPM version:" && npm --version
         - echo "Checking environment variables..."
         - echo "EMAIL_USER is set:" $(if [ -n "$EMAIL_USER" ]; then echo "YES"; else echo "NO"; fi)
         - echo "EMAIL_PASSWORD is set:" $(if [ -n "$EMAIL_PASSWORD" ]; then echo "YES"; else echo "NO"; fi)
@@ -12,7 +14,9 @@ frontend:
         - npm ci
     build:
       commands:
+        - echo "Starting build process..."
         - npm run build
+        - echo "Build completed successfully"
   artifacts:
     baseDirectory: .next
     files:

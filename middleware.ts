@@ -3,7 +3,12 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtectedRoute = createRouteMatcher(["/chat(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) await auth.protect();
+  if (isProtectedRoute(req)) {
+    const authObject = await auth();
+    if (!authObject.userId) {
+      return authObject.redirectToSignIn();
+    }
+  }
 });
 
 export const config = {
