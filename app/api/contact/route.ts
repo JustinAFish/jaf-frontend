@@ -3,7 +3,24 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
   try {
+    // Check for required environment variables
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.error('Missing EMAIL_USER or EMAIL_PASSWORD environment variables');
+      return NextResponse.json(
+        { error: 'Email service not configured' }, 
+        { status: 500 }
+      );
+    }
+
     const { name, email, message, recipient } = await request.json();
+
+    // Validate input
+    if (!name || !email || !message) {
+      return NextResponse.json(
+        { error: 'Missing required fields: name, email, or message' }, 
+        { status: 400 }
+      );
+    }
 
     // Create a transporter
     const transporter = nodemailer.createTransport({
@@ -41,6 +58,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Email sent successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error sending email:', error);
-    return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+    
+    // Provide more specific error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    return NextResponse.json(
+      { 
+        error: 'Failed to send email',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      }, 
+      { status: 500 }
+    );
   }
 }
