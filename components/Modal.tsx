@@ -4,7 +4,7 @@
  * This renders the modal container centered on the screen with rounded corners and a dark background
  * Allows the parent component to pass in the content to be displayed inside the modal
 **/
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -13,9 +13,15 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, children }: ModalProps) {
-  
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // If the `isOpen` prop is false, the component will return null and not render anything
-  if (!isOpen) return null;
+  // Also don't render during SSR to prevent hydration mismatch
+  if (!isOpen || !isMounted) return null;
 
   return (
 

@@ -32,11 +32,19 @@ export function ChatMessages({
   const getCurrentChat = useChatStore((state) => state.getCurrentChat);
   const currentChat = getCurrentChat();
 
-  // State for welcome modal
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  // State for welcome modal - start with false to prevent hydration mismatch
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Create ref for messages container
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Effect to handle client-side mounting and show welcome modal
+  useEffect(() => {
+    // Only show welcome modal if there are no chats or current chat has no messages
+    if (!currentChat || currentChat.messages.length === 0) {
+      setShowWelcomeModal(true);
+    }
+  }, [currentChat]);
 
   // Scroll to bottom when messages change or loading state changes
   useEffect(() => {
