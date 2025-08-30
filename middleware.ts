@@ -8,13 +8,18 @@ const publicRoutes = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // runtime log for debugging
-  console.log('Clerk middleware active, path:', req.url);
+  // Debug: confirm the routing decision
+  const isPublic = publicRoutes(req);
+  console.log('Clerk middleware active, path:', req.url, 'isPublic:', isPublic);
 
-  if (!publicRoutes(req)) {
+  if (!isPublic) {
     const { userId } = await auth();
     if (!userId) {
-      const signInUrl = new URL('/chat/sign-in', req.url);
+      // Local dev: ensure http scheme to avoid HTTPS-origin issues
+      const isLocalDev = req.nextUrl.hostname === 'localhost';
+      const signInUrl = isLocalDev
+        ? new URL('http://localhost:3000/chat/sign-in')
+        : new URL('/chat/sign-in', req.url);
       signInUrl.searchParams.set('redirect_url', req.url);
       return NextResponse.redirect(signInUrl);
     }
@@ -22,7 +27,5 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  matcher: [
-    '/((?!_next|.*\\..*).*)',
-  ],
+  matcher: ['/((?!_next|.*\\..*).*)'],
 };
