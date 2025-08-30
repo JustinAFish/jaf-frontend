@@ -8,11 +8,14 @@ const publicRoutes = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // runtime log for debugging
+  console.log('Clerk middleware active, path:', req.url);
+
   if (!publicRoutes(req)) {
     const { userId } = await auth();
     if (!userId) {
       const signInUrl = new URL('/chat/sign-in', req.url);
-      signInUrl.searchParams.set("redirect_url", req.url);
+      signInUrl.searchParams.set('redirect_url', req.url);
       return NextResponse.redirect(signInUrl);
     }
   }
@@ -20,6 +23,6 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    '/((?!_next|.*\..*).*)',
+    '/((?!_next|.*\\..*).*)',
   ],
 };
