@@ -1,24 +1,25 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-const isProtectedRoute = createRouteMatcher(["/chat(.*)"]);
+const publicRoutes = createRouteMatcher([
+  '/chat/sign-in(.*)',
+  '/chat/sign-up(.*)',
+  '/',
+]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Add environment variable validation for debugging
-  if (!process.env.CLERK_SECRET_KEY) {
-    console.error('CLERK_SECRET_KEY is not available in middleware');
-    console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('CLERK')));
-  }
-
-  if (isProtectedRoute(req)) {
-    await auth.protect();
+  if (!publicRoutes(req)) {
+    const { userId } = await auth();
+    if (!userId) {
+      const signInUrl = new URL('/chat/sign-in', req.url);
+      signInUrl.searchParams.set("redirect_url", req.url);
+      return NextResponse.redirect(signInUrl);
+    }
   }
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    '/((?!_next|.*\..*).*)',
   ],
 };
