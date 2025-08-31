@@ -23,12 +23,12 @@ const oauth = domain
     }
   : undefined
 
-const amplifyConfig = {
-  Auth: {
-    ...amplifyConfigBase,
-    ...(oauth ? { oauth } : {}),
-  },
-}
+// const amplifyConfig = {
+//   Auth: {
+//     ...amplifyConfigBase,
+//     ...(oauth ? { oauth } : {}),
+//   },
+// }
 
 export default function AmplifyProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
