@@ -40,7 +40,17 @@ export default function AmplifyProvider({ children }: { children: React.ReactNod
       userPoolWebClientId: amplifyConfigBase.userPoolWebClientId,
       oauth: oauth ?? '(no oauth)'
     })
-    Amplify.configure({ Auth: amplifyConfig.Auth } as unknown as ResourcesConfig)
+
+    const finalAuth = {
+      ...amplifyConfigBase,
+      ...(oauth ? { oauth } : {}),
+      Cognito: oauth ? { loginWith: { oauth } } : undefined,
+    }
+
+    // debug
+    console.log('[Amplify] finalAuth', finalAuth)
+
+    Amplify.configure({ Auth: finalAuth } as unknown as ResourcesConfig)
   }, [])
 
   return <>{children}</>
