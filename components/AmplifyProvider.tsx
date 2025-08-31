@@ -31,18 +31,20 @@ const oauth = domain
 // }
 
 export default function AmplifyProvider({ children }: { children: React.ReactNode }) {
+  const finalAuth = {
+    ...amplifyConfigBase,
+    ...(oauth ? { oauth } : {}),
+    Cognito: oauth ? { loginWith: { oauth } } : undefined,
+  }
+
+  // debug
+  console.log('[Amplify] finalAuth', finalAuth)
+
+  Amplify.configure({ Auth: finalAuth } as unknown as ResourcesConfig)
+
   useEffect(() => {
-
-    const finalAuth = {
-      ...amplifyConfigBase,
-      ...(oauth ? { oauth } : {}),
-      Cognito: oauth ? { loginWith: { oauth } } : undefined,
-    }
-
-    // debug
-    console.log('[Amplify] finalAuth', finalAuth)
-
-    Amplify.configure({ Auth: finalAuth } as unknown as ResourcesConfig)
+    // log current runtime config once
+    console.log('[Amplify] getConfig', Amplify.getConfig())
   }, [])
 
   return <>{children}</>
