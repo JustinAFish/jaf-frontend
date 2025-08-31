@@ -40,6 +40,18 @@ export default function AmplifyProvider({ children }: { children: React.ReactNod
   // debug
   console.log('[Amplify] finalAuth', finalAuth)
 
+  // runtime env checks - warn if required NEXT_PUBLIC_ vars are missing
+  const missingVars: string[] = []
+  if (!process.env.NEXT_PUBLIC_AWS_REGION) missingVars.push('NEXT_PUBLIC_AWS_REGION')
+  if (!process.env.NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID) missingVars.push('NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID')
+  if (!process.env.NEXT_PUBLIC_AWS_COGNITO_APP_CLIENT_ID) missingVars.push('NEXT_PUBLIC_AWS_COGNITO_APP_CLIENT_ID')
+  if (oauth && !process.env.NEXT_PUBLIC_AWS_COGNITO_DOMAIN) missingVars.push('NEXT_PUBLIC_AWS_COGNITO_DOMAIN')
+
+  if (missingVars.length > 0) {
+    // eslint-disable-next-line no-console
+    console.warn('[Amplify] Missing required NEXT_PUBLIC_ env vars:', missingVars.join(', '))
+  }
+
   Amplify.configure({ Auth: finalAuth } as unknown as ResourcesConfig)
 
   useEffect(() => {
