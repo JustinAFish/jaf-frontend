@@ -57,7 +57,7 @@ export default function HomeHero() {
                 onClick={() => router.push("/chat")}
                 className="relative inline-flex items-center flex-1"
               >
-                <div className="w-full px-1 py-1 bg-gradient-to-r from-teal-400 via-blue-500 to-purple-500 rounded-lg shadow-md">
+                <div className="w-full px-1 py-1 bg-gradient-to-r from-teal-400 via-blue-500 to-purple-500 rounded-lg shadow-md cursor-pointer">
                   <div className="flex items-center justify-center bg-foreground rounded-lg px-2 py-2 shadow-inner hover:bg-transparent">
                     <Icons.aisparkle />
                     <span className="text-lg text-white">AI Chat</span>
