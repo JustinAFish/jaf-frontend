@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { useState, useEffect } from 'react'
 
 export function Navbar() {
   const pathname = usePathname();
@@ -109,10 +109,66 @@ export function Navbar() {
           </a>
         </div>
 
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+        {/** Simple Amplify auth state: show username when signed in, otherwise a Sign In link */}
+        <div>
+          <AuthStatus />
+        </div>
       </NavbarItem>
     </NextUINavbar>
   );
+}
+
+function AuthStatus() {
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const mod = (await import('aws-amplify')) as unknown as {
+          Auth: {
+            currentAuthenticatedUser: () => Promise<unknown>
+            signOut: () => Promise<void>
+          }
+        }
+        const u = await mod.Auth.currentAuthenticatedUser()
+        const user = u as { username?: string; attributes?: { email?: string } } | undefined;
+        if (mounted) setUsername(user?.username ?? user?.attributes?.email ?? null)
+      } catch {
+        if (mounted) setUsername(null)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
+
+  if (username) {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="text-white">{username}</span>
+        <button
+          className="text-white hover:text-primary/80"
+          onClick={async () => {
+            try {
+              const mod = (await import('aws-amplify')) as unknown as {
+                Auth: { signOut: () => Promise<void> }
+              }
+              await mod.Auth.signOut()
+            } catch {
+              /* ignore */
+            }
+            // reload to update auth state
+            window.location.href = '/'
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <NextLink href="/chat/sign-in" className="text-white hover:text-primary/80">
+      Sign in
+    </NextLink>
+  )
 }

@@ -1,5 +1,6 @@
-import { SignIn } from "@clerk/nextjs";
+'use client'
+import { Authenticator } from '@aws-amplify/ui-react'
 
-export default function Page() {
-  return <SignIn routing="path" path="/chat/sign-in" />;
+export default function SignIn() {
+  return <Authenticator />
 } 
