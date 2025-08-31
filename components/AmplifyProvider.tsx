@@ -32,14 +32,6 @@ const oauth = domain
 
 export default function AmplifyProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    console.log('[Amplify] rawDomain=', rawDomain)
-    console.log('[Amplify] normalized domain=', domain)
-    console.log('[Amplify] auth config=', {
-      region: amplifyConfigBase.region,
-      userPoolId: amplifyConfigBase.userPoolId,
-      userPoolWebClientId: amplifyConfigBase.userPoolWebClientId,
-      oauth: oauth ?? '(no oauth)'
-    })
 
     const finalAuth = {
       ...amplifyConfigBase,

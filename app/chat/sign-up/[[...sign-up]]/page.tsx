@@ -10,5 +10,5 @@ export default function SignUp() {
     window.location.href = url
   }, [])
 
-  return <div className="p-6"><p className="text-white">Redirecting to Hosted UI...</p></div>
+  return <div className="p-6 mt-24"><p className="text-white">Redirecting to Hosted UI...</p></div>
 } 
