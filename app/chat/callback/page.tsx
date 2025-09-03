@@ -34,6 +34,16 @@ function AuthCallbackContent() {
 
         console.log('Processing OAuth callback with code:', code.substring(0, 10) + '...')
         
+        // Get the correct base URL for redirects
+        const getBaseUrl = () => {
+          // In production on Amplify, use the production URL
+          if (process.env.NODE_ENV === 'production') {
+            return 'https://main.d325l4yh4si1cx.amplifyapp.com'
+          }
+          // In development, use localhost
+          return `${window.location.protocol}//${window.location.host}`
+        }
+        
         // Set up Hub listener for auth events
         hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
           console.log('[Auth Hub Event]:', payload.event)
@@ -53,7 +63,10 @@ function AuthCallbackContent() {
               setStatus('success')
               // Redirect to chat after successful authentication
               setTimeout(() => {
-                if (mounted) router.push('/chat')
+                if (mounted) {
+                  const baseUrl = getBaseUrl()
+                  window.location.href = `${baseUrl}/chat`
+                }
               }, 1000)
               break
             case 'tokenRefresh_failure':
@@ -70,7 +83,10 @@ function AuthCallbackContent() {
           if (mounted) {
             setStatus('success')
             setTimeout(() => {
-              if (mounted) router.push('/chat')
+              if (mounted) {
+                const baseUrl = getBaseUrl()
+                window.location.href = `${baseUrl}/chat`
+              }
             }, 1000)
           }
           return
