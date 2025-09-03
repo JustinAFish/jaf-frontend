@@ -9,9 +9,11 @@ frontend:
         - echo "Checking environment variables..."
         - echo "EMAIL_USER is set:" $(if [ -n "$EMAIL_USER" ]; then echo "YES"; else echo "NO"; fi)
         - echo "EMAIL_PASSWORD is set:" $(if [ -n "$EMAIL_PASSWORD" ]; then echo "YES"; else echo "NO"; fi)
-        - echo "CLERK_SECRET_KEY is set:" $(if [ -n "$CLERK_SECRET_KEY" ]; then echo "YES"; else echo "NO"; fi)
-        - echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is set:" $(if [ -n "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" ]; then echo "YES"; else echo "NO"; fi)
         - echo "NEXT_PUBLIC_BACKEND_URL is set:" $(if [ -n "$NEXT_PUBLIC_BACKEND_URL" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "NEXT_PUBLIC_AWS_REGION is set:" $(if [ -n "$NEXT_PUBLIC_AWS_REGION" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID is set:" $(if [ -n "$NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "NEXT_PUBLIC_AWS_COGNITO_APP_CLIENT_ID is set:" $(if [ -n "$NEXT_PUBLIC_AWS_COGNITO_APP_CLIENT_ID" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "NEXT_PUBLIC_AWS_COGNITO_DOMAIN is set:" $(if [ -n "$NEXT_PUBLIC_AWS_COGNITO_DOMAIN" ]; then echo "YES"; else echo "NO"; fi)
         - npm ci
     build:
       commands:
@@ -19,14 +21,15 @@ frontend:
         - echo "Creating .env.production file for runtime environment variables..."
         - env | grep -e EMAIL_USER >> .env.production
         - env | grep -e EMAIL_PASSWORD >> .env.production
-        - env | grep -e CLERK_SECRET_KEY >> .env.production
         - env | grep -e NEXT_PUBLIC_ >> .env.production
         - echo "Contents of .env.production:"
         - cat .env.production
         - echo "Environment variables for build:"
         - echo "EMAIL_USER is set:" $(if [ -n "$EMAIL_USER" ]; then echo "YES"; else echo "NO"; fi)
         - echo "EMAIL_PASSWORD is set:" $(if [ -n "$EMAIL_PASSWORD" ]; then echo "YES"; else echo "NO"; fi)
-        - echo "CLERK_SECRET_KEY is set:" $(if [ -n "$CLERK_SECRET_KEY" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "AWS Cognito variables:"
+        - echo "NEXT_PUBLIC_AWS_REGION is set:" $(if [ -n "$NEXT_PUBLIC_AWS_REGION" ]; then echo "YES"; else echo "NO"; fi)
+        - echo "NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID is set:" $(if [ -n "$NEXT_PUBLIC_AWS_COGNITO_USER_POOL_ID" ]; then echo "YES"; else echo "NO"; fi)
         - npm run build
         - echo "Build completed successfully"
   artifacts:
