@@ -125,15 +125,21 @@ function AuthStatus() {
     let mounted = true
     ;(async () => {
       try {
-        const mod = (await import('aws-amplify')) as unknown as {
-          Auth: {
-            currentAuthenticatedUser: () => Promise<unknown>
-            signOut: () => Promise<void>
+        const { getCurrentUser } = await import('aws-amplify/auth')
+        const user = await getCurrentUser()
+        if (mounted) {
+          // Try to get email from user attributes, fallback to username
+          const userObj = user as { 
+            signInDetails?: { loginId?: string }
+            username?: string
+            attributes?: { email?: string }
           }
+          const userAttributes = userObj?.signInDetails?.loginId || 
+                               userObj?.username || 
+                               userObj?.attributes?.email || 
+                               'User'
+          setUsername(userAttributes)
         }
-        const u = await mod.Auth.currentAuthenticatedUser()
-        const user = u as { username?: string; attributes?: { email?: string } } | undefined;
-        if (mounted) setUsername(user?.username ?? user?.attributes?.email ?? null)
       } catch {
         if (mounted) setUsername(null)
       }
@@ -149,10 +155,8 @@ function AuthStatus() {
           className="text-white hover:text-primary/80"
           onClick={async () => {
             try {
-              const mod = (await import('aws-amplify')) as unknown as {
-                Auth: { signOut: () => Promise<void> }
-              }
-              await mod.Auth.signOut()
+              const { signOut } = await import('aws-amplify/auth')
+              await signOut()
             } catch {
               /* ignore */
             }
