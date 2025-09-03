@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { signInWithRedirect, getCurrentUser } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(true)
@@ -79,9 +80,9 @@ export default function SignUp() {
         </button>
         <p className="text-gray-400 text-sm mt-4 text-center">
           Already have an account?{' '}
-          <a href="/chat/sign-in" className="text-blue-400 hover:text-blue-300">
+          <Link href="/chat/sign-in" className="text-blue-400 hover:text-blue-300">
             Sign in here
-          </a>
+          </Link>
         </p>
       </div>
     </div>
