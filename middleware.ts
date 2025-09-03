@@ -23,10 +23,6 @@ export default async function middleware(req: Request) {
     return NextResponse.next()
   }
 
-  // For protected routes, check if we're in a browser context
-  // In server-side middleware, we can't access Amplify auth state directly
-  // So we'll rely on the client-side auth checks in the components
-  
   // Check Authorization header for a Bearer token (for API calls)
   const authHeader = req.headers.get('authorization') || ''
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
@@ -36,8 +32,14 @@ export default async function middleware(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // For non-API routes, let the client-side auth handle redirects
-  // This allows Amplify to manage the auth state properly
+  // For protected routes like /chat, redirect to sign-in if no auth header
+  // This provides a server-side fallback, but the main auth check happens client-side
+  if (pathname.startsWith('/chat') && !token) {
+    const signInUrl = new URL('/chat/sign-in', req.url)
+    signInUrl.searchParams.set('redirect_url', req.url)
+    return NextResponse.redirect(signInUrl)
+  }
+
   return NextResponse.next()
 }
 

@@ -11,25 +11,70 @@ import { ChatMessages } from "@/components/ChatMessages";
 import { ChatInput } from "@/components/ChatInput";
 import { useChatStore } from "@/store/chatStore";
 import Image from "next/image";
+import { getCurrentUser } from 'aws-amplify/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ChatPage() {
   // State management
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showExpandedSources] = useState(false);
   const { getCurrentChat, addMessage, ensureActiveChat, fetchUserChats } =
     useChatStore();
   const currentChat = getCurrentChat();
+  const router = useRouter();
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await getCurrentUser();
+        setIsAuthLoading(false);
+      } catch {
+        // User not authenticated, redirect to sign in
+        router.push('/chat/sign-in?redirect_url=' + encodeURIComponent(window.location.pathname));
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   // Ensure an active chat is available when the component mounts
   useEffect(() => {
-    ensureActiveChat();
-  }, [ensureActiveChat]);
+    if (!isAuthLoading) {
+      ensureActiveChat();
+    }
+  }, [ensureActiveChat, isAuthLoading]);
 
   // Add this useEffect to fetch chats when the component mounts
   useEffect(() => {
-    // Fetch user chats when the page loads
-    fetchUserChats();
-  }, [fetchUserChats]);
+    if (!isAuthLoading) {
+      // Fetch user chats when the page loads
+      fetchUserChats();
+    }
+  }, [fetchUserChats, isAuthLoading]);
+
+  // Show loading while checking authentication
+  if (isAuthLoading) {
+    return (
+      <div className="flex h-[calc(100vh-2rem)] items-center justify-center">
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/data-background.jpeg"
+            alt="Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/70"></div>
+        </div>
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle sending a new message
   const handleMessageSent = async (userMessage: string) => {
