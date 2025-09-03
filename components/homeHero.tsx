@@ -2,12 +2,11 @@ import { Card, CardHeader } from "@nextui-org/react";
 import { ShineBorder } from "@/components/magicui/shine-border";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+
 import { CardTitle } from "./ui/card";
 import { Icons } from "../public/svg/svgs";
 
 export default function HomeHero() {
-  const router = useRouter();
 
   return (
     <section id="home" className="relative h-screen flex items-center">
@@ -54,7 +53,14 @@ export default function HomeHero() {
                 Download CV
               </a>
               <a
-                onClick={() => router.push("/chat")}
+                onClick={() => {
+                  // Detect production environment by checking the current domain
+                  const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
+                  const baseUrl = isProduction 
+                    ? 'https://main.d325l4yh4si1cx.amplifyapp.com'
+                    : `${window.location.protocol}//${window.location.host}`
+                  window.location.href = `${baseUrl}/chat`
+                }}
                 className="relative inline-flex items-center flex-1"
               >
                 <div className="w-full px-1 py-1 bg-gradient-to-r from-teal-400 via-blue-500 to-purple-500 rounded-lg shadow-md cursor-pointer">

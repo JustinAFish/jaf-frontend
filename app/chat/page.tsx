@@ -12,7 +12,6 @@ import { ChatInput } from "@/components/ChatInput";
 import { useChatStore } from "@/store/chatStore";
 import Image from "next/image";
 import { getCurrentUser } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
 
 export default function ChatPage() {
   // State management
@@ -22,7 +21,6 @@ export default function ChatPage() {
   const { getCurrentChat, addMessage, ensureActiveChat, fetchUserChats } =
     useChatStore();
   const currentChat = getCurrentChat();
-  const router = useRouter();
 
   // Check authentication on mount
   useEffect(() => {
@@ -32,12 +30,17 @@ export default function ChatPage() {
         setIsAuthLoading(false);
       } catch {
         // User not authenticated, redirect to sign in
-        router.push('/chat/sign-in?redirect_url=' + encodeURIComponent(window.location.pathname));
+        const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
+        const baseUrl = isProduction 
+          ? 'https://main.d325l4yh4si1cx.amplifyapp.com'
+          : `${window.location.protocol}//${window.location.host}`
+        const signInUrl = `${baseUrl}/chat/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`
+        window.location.href = signInUrl
       }
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
   // Ensure an active chat is available when the component mounts
   useEffect(() => {

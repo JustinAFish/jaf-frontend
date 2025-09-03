@@ -36,8 +36,9 @@ function AuthCallbackContent() {
         
         // Get the correct base URL for redirects
         const getBaseUrl = () => {
-          // In production on Amplify, use the production URL
-          if (process.env.NODE_ENV === 'production') {
+          // Detect production environment by checking the current domain
+          const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
+          if (isProduction) {
             return 'https://main.d325l4yh4si1cx.amplifyapp.com'
           }
           // In development, use localhost

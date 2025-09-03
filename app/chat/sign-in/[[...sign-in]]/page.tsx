@@ -1,22 +1,38 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { signInWithRedirect, getCurrentUser } from 'aws-amplify/auth'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 function SignInContent() {
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirectUrl = searchParams.get('redirect_url')
 
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
+      // Helper function to get the correct base URL
+      const getBaseUrl = () => {
+        // Detect production environment by checking the current domain
+        const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
+        if (isProduction) {
+          return 'https://main.d325l4yh4si1cx.amplifyapp.com'
+        }
+        return `${window.location.protocol}//${window.location.host}`
+      }
+
       try {
         // Check if user is already authenticated
         await getCurrentUser()
         // If authenticated, redirect to intended page or chat
         const destination = redirectUrl || '/chat'
-        router.push(destination)
+        if (destination.startsWith('/')) {
+          // Use absolute URL for internal routes
+          const baseUrl = getBaseUrl()
+          window.location.href = `${baseUrl}${destination}`
+        } else {
+          // External URL, use as-is
+          window.location.href = destination
+        }
         return
       } catch {
         // User not authenticated, proceed with sign in
@@ -33,7 +49,14 @@ function SignInContent() {
           await new Promise(resolve => setTimeout(resolve, 1000))
           await getCurrentUser()
           const destination = redirectUrl || '/chat'
-          router.push(destination)
+          if (destination.startsWith('/')) {
+            // Use absolute URL for internal routes
+            const baseUrl = getBaseUrl()
+            window.location.href = `${baseUrl}${destination}`
+          } else {
+            // External URL, use as-is
+            window.location.href = destination
+          }
           return
         } catch {
           console.error('Error processing OAuth callback')
@@ -46,7 +69,7 @@ function SignInContent() {
     }
 
     checkAuthAndRedirect()
-  }, [router, redirectUrl])
+  }, [redirectUrl])
 
   const handleSignIn = async () => {
     try {
