@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -92,5 +92,18 @@ export default function AuthCallback() {
         </button>
       </div>
     </div>
+  )
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <div className="mt-24 p-6 flex flex-col items-center justify-center min-h-[400px]">
+        <div className="text-white mb-4">Loading...</div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   )
 } 
