@@ -35,8 +35,10 @@ export default async function middleware(req: Request) {
   // For protected routes like /chat, redirect to sign-in if no auth header
   // This provides a server-side fallback, but the main auth check happens client-side
   if (pathname.startsWith('/chat') && !token) {
-    const signInUrl = new URL('/chat/sign-in', req.url)
-    signInUrl.searchParams.set('redirect_url', req.url)
+    const signInUrl = new URL('/chat/sign-in', 'https://main.d325l4yh4si1cx.amplifyapp.com')
+    // Always use production URL for redirect_url
+    const redirectUrl = `https://main.d325l4yh4si1cx.amplifyapp.com${pathname}`
+    signInUrl.searchParams.set('redirect_url', redirectUrl)
     return NextResponse.redirect(signInUrl)
   }
 
