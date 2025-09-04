@@ -54,12 +54,8 @@ export default function HomeHero() {
               </a>
               <a
                 onClick={() => {
-                  // Detect production environment by checking the current domain
-                  const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
-                  const baseUrl = isProduction 
-                    ? 'https://main.d325l4yh4si1cx.amplifyapp.com'
-                    : `${window.location.protocol}//${window.location.host}`
-                  window.location.href = `${baseUrl}/chat`
+                  // Always use production URL
+                  window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
                 }}
                 className="relative inline-flex items-center flex-1"
               >

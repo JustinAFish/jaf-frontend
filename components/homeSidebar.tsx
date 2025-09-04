@@ -158,11 +158,9 @@ export default function HomeSidebar() {
             <Link
               key={href}
               href={href}
-              onClick={(e) => {
-                if (pathname !== "/") {
-                  e.preventDefault();
-                  window.location.href = `/${href}`;
-                }
+              onClick={() => {
+                setActiveSection(href);
+                window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/${href}`;
               }}
               className={linkClassName}
             >

@@ -161,7 +161,7 @@ function AuthStatus() {
               /* ignore */
             }
             // reload to update auth state
-            window.location.href = '/'
+            window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/'
           }}
         >
           Sign out

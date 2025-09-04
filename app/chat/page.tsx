@@ -30,11 +30,7 @@ export default function ChatPage() {
         setIsAuthLoading(false);
       } catch {
         // User not authenticated, redirect to sign in
-        const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
-        const baseUrl = isProduction 
-          ? 'https://main.d325l4yh4si1cx.amplifyapp.com'
-          : `${window.location.protocol}//${window.location.host}`
-        const signInUrl = `${baseUrl}/chat/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`
+        const signInUrl = `https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`
         window.location.href = signInUrl
       }
     };

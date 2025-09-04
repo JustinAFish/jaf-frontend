@@ -1,12 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { signInWithRedirect, getCurrentUser } from 'aws-amplify/auth'
-import { useRouter } from 'next/navigation'
+
 import Link from 'next/link'
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
@@ -14,7 +13,7 @@ export default function SignUp() {
         // Check if user is already authenticated
         await getCurrentUser()
         // If authenticated, redirect to chat
-        router.push('/chat')
+        window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
         return
       } catch {
         // User not authenticated, proceed with sign up
@@ -30,7 +29,7 @@ export default function SignUp() {
           // Wait a moment for Amplify to process the callback
           await new Promise(resolve => setTimeout(resolve, 1000))
           await getCurrentUser()
-          router.push('/chat')
+          window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
           return
         } catch {
           console.error('Error processing OAuth callback')
@@ -43,7 +42,7 @@ export default function SignUp() {
     }
 
     checkAuthAndRedirect()
-  }, [router])
+  }, [])
 
   const handleSignUp = async () => {
     try {

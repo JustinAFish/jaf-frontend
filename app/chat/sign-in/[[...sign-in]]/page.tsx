@@ -10,25 +10,14 @@ function SignInContent() {
 
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
-      // Helper function to get the correct base URL
-      const getBaseUrl = () => {
-        // Detect production environment by checking the current domain
-        const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
-        if (isProduction) {
-          return 'https://main.d325l4yh4si1cx.amplifyapp.com'
-        }
-        return `${window.location.protocol}//${window.location.host}`
-      }
-
       try {
         // Check if user is already authenticated
         await getCurrentUser()
         // If authenticated, redirect to intended page or chat
         const destination = redirectUrl || '/chat'
         if (destination.startsWith('/')) {
-          // Use absolute URL for internal routes
-          const baseUrl = getBaseUrl()
-          window.location.href = `${baseUrl}${destination}`
+          // Always use production URL for internal routes
+          window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${destination}`
         } else {
           // External URL, use as-is
           window.location.href = destination
@@ -50,9 +39,8 @@ function SignInContent() {
           await getCurrentUser()
           const destination = redirectUrl || '/chat'
           if (destination.startsWith('/')) {
-            // Use absolute URL for internal routes
-            const baseUrl = getBaseUrl()
-            window.location.href = `${baseUrl}${destination}`
+            // Always use production URL for internal routes
+            window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${destination}`
           } else {
             // External URL, use as-is
             window.location.href = destination

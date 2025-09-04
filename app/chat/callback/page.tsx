@@ -1,12 +1,11 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { getCurrentUser } from 'aws-amplify/auth'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Hub } from 'aws-amplify/utils'
 
 function AuthCallbackContent() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -28,22 +27,11 @@ function AuthCallbackContent() {
 
         if (!code) {
           console.log('No authorization code found, redirecting to sign in')
-          router.push('/chat/sign-in')
+          window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in'
           return
         }
 
         console.log('Processing OAuth callback with code:', code.substring(0, 10) + '...')
-        
-        // Get the correct base URL for redirects
-        const getBaseUrl = () => {
-          // Detect production environment by checking the current domain
-          const isProduction = window.location.hostname === 'main.d325l4yh4si1cx.amplifyapp.com'
-          if (isProduction) {
-            return 'https://main.d325l4yh4si1cx.amplifyapp.com'
-          }
-          // In development, use localhost
-          return `${window.location.protocol}//${window.location.host}`
-        }
         
         // Set up Hub listener for auth events
         hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
@@ -65,8 +53,7 @@ function AuthCallbackContent() {
               // Redirect to chat after successful authentication
               setTimeout(() => {
                 if (mounted) {
-                  const baseUrl = getBaseUrl()
-                  window.location.href = `${baseUrl}/chat`
+                  window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
                 }
               }, 1000)
               break
@@ -85,8 +72,7 @@ function AuthCallbackContent() {
             setStatus('success')
             setTimeout(() => {
               if (mounted) {
-                const baseUrl = getBaseUrl()
-                window.location.href = `${baseUrl}/chat`
+                window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
               }
             }, 1000)
           }
@@ -113,7 +99,7 @@ function AuthCallbackContent() {
         hubUnsubscribe()
       }
     }
-  }, [router, searchParams])
+  }, [searchParams])
 
   if (status === 'processing') {
     return (
@@ -142,7 +128,7 @@ function AuthCallbackContent() {
           There was an error processing your authentication. Please check the browser console for details.
         </p>
         <button
-          onClick={() => router.push('/chat/sign-in')}
+          onClick={() => window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in'}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
         >
           Try Again
