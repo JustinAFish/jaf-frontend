@@ -32,14 +32,10 @@ export default async function middleware(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // For protected routes like /chat, redirect to sign-in if no auth header
-  // This provides a server-side fallback, but the main auth check happens client-side
-  if (pathname.startsWith('/chat') && !token) {
-    const signInUrl = new URL('/chat/sign-in', 'https://main.d325l4yh4si1cx.amplifyapp.com')
-    // Always use production URL for redirect_url
-    const redirectUrl = `https://main.d325l4yh4si1cx.amplifyapp.com${pathname}`
-    signInUrl.searchParams.set('redirect_url', redirectUrl)
-    return NextResponse.redirect(signInUrl)
+  // For /chat route, allow it through - authentication is handled client-side by Amplify
+  // The client-side code will redirect to sign-in if needed
+  if (pathname.startsWith('/chat')) {
+    return NextResponse.next()
   }
 
   return NextResponse.next()
