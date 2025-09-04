@@ -15,11 +15,16 @@ function SignInContent() {
         await getCurrentUser()
         // If authenticated, redirect to intended page or chat
         const destination = redirectUrl || '/chat'
-        if (destination.startsWith('/')) {
-          // Always use production URL for internal routes
+        
+        // Handle both relative paths and full URLs
+        if (destination.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+          // Full production URL, use as-is
+          window.location.href = destination
+        } else if (destination.startsWith('/')) {
+          // Relative path, make it absolute
           window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${destination}`
         } else {
-          // External URL, use as-is
+          // Other external URL, use as-is
           window.location.href = destination
         }
         return
@@ -38,11 +43,16 @@ function SignInContent() {
           await new Promise(resolve => setTimeout(resolve, 1000))
           await getCurrentUser()
           const destination = redirectUrl || '/chat'
-          if (destination.startsWith('/')) {
-            // Always use production URL for internal routes
+          
+          // Handle both relative paths and full URLs
+          if (destination.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+            // Full production URL, use as-is
+            window.location.href = destination
+          } else if (destination.startsWith('/')) {
+            // Relative path, make it absolute
             window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${destination}`
           } else {
-            // External URL, use as-is
+            // Other external URL, use as-is
             window.location.href = destination
           }
           return
