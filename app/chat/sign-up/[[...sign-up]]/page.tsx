@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { signInWithRedirect, getCurrentUser } from 'aws-amplify/auth'
 
-import Link from 'next/link'
+
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(true)
@@ -77,11 +77,11 @@ export default function SignUp() {
         >
           Sign Up with AWS Cognito
         </button>
-        <p className="text-gray-400 text-sm mt-4 text-center">
+        <p className="text-gray-400 text-center">
           Already have an account?{' '}
-          <Link href="/chat/sign-in" className="text-blue-400 hover:text-blue-300">
+          <a href="https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in" className="text-blue-400 hover:text-blue-300">
             Sign in here
-          </Link>
+          </a>
         </p>
       </div>
     </div>

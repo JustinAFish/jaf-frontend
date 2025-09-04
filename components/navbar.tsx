@@ -56,10 +56,10 @@ export function Navbar() {
             </NextLink>
           </NavbarItem>
           <NavbarItem key="chat">
-            <NextLink
+            <a
               className={linkStyles({ color: "foreground" })}
               color="foreground"
-              href="/chat"
+              href="https://main.d325l4yh4si1cx.amplifyapp.com/chat"
             >
               <span
                 className={`text-lg transition-colors duration-200 flex items-center gap-2 ${
@@ -80,7 +80,7 @@ export function Navbar() {
                 </svg>
                 Chat
               </span>
-            </NextLink>
+            </a>
           </NavbarItem>
         </ul>
       </NavbarContent>
@@ -171,8 +171,8 @@ function AuthStatus() {
   }
 
   return (
-    <NextLink href="/chat/sign-in" className="text-white hover:text-primary/80">
+    <a href="https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in" className="text-white hover:text-primary/80">
       Sign in
-    </NextLink>
+    </a>
   )
 }
