@@ -10,77 +10,61 @@ function SignInContent() {
 
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
-      console.log('[SignIn] Starting auth check, redirectUrl:', redirectUrl)
-      
       try {
         // Check if user is already authenticated
-        const user = await getCurrentUser()
-        console.log('[SignIn] User is authenticated:', user)
-        
+        await getCurrentUser()
         // If authenticated, redirect to intended page or chat
-        const destination = redirectUrl || 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
-        console.log('[SignIn] Redirecting authenticated user to:', destination)
+        const destination = redirectUrl || '/chat'
         
-        // Always use the destination as-is (it should be a full URL from middleware)
-        window.location.href = destination
+        // Handle both relative paths and full URLs
+        if (destination.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+          // Full production URL, use as-is
+          window.location.href = destination
+        } else if (destination.startsWith('/')) {
+          // Relative path, make it absolute
+          window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${destination}`
+        } else {
+          // Other external URL, use as-is
+          window.location.href = destination
+        }
         return
       } catch {
         // User not authenticated, proceed with sign in
-        console.log('[SignIn] User not authenticated, showing sign in form')
+        console.log('User not authenticated, showing sign in')
       }
 
       // Check if this is a callback from Cognito (has 'code' parameter)
+      // If so, redirect to the proper callback page to handle it
       const urlParams = new URLSearchParams(window.location.search)
-      const hasCode = urlParams.has('code')
-      console.log('[SignIn] Has OAuth code:', hasCode)
-      
-      if (hasCode) {
-        // This is a callback from Cognito, let Amplify handle it
-        console.log('[SignIn] Processing OAuth callback')
-        setIsLoading(true)
-        try {
-          // Wait a moment for Amplify to process the callback
-          await new Promise(resolve => setTimeout(resolve, 2000))
-          const user = await getCurrentUser()
-          console.log('[SignIn] OAuth callback processed, user:', user)
-          
-          const destination = redirectUrl || 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
-          console.log('[SignIn] Redirecting after OAuth to:', destination)
-          window.location.href = destination
-          return
-        } catch (error) {
-          console.error('[SignIn] Error processing OAuth callback:', error)
-          setIsLoading(false)
-        }
-      } else {
-        // Not a callback, show sign in button
-        console.log('[SignIn] Not an OAuth callback, showing sign in button')
-        setIsLoading(false)
+      if (urlParams.has('code')) {
+        console.log('OAuth callback detected, redirecting to callback page')
+        // Redirect to callback page with all URL parameters preserved
+        window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat/callback${window.location.search}`
+        return
       }
+
+      // Not a callback and not authenticated, show sign in button
+      setIsLoading(false)
     }
 
     checkAuthAndRedirect()
-  }, []) // Remove redirectUrl from dependencies to prevent infinite loops
+  }, [redirectUrl])
 
   const handleSignIn = async () => {
     try {
-      console.log('[SignIn] Starting sign in with redirect')
       setIsLoading(true)
       await signInWithRedirect()
-    } catch (error) {
-      console.error('[SignIn] Error signing in:', error)
+    } catch {
+      console.error('Error signing in')
       setIsLoading(false)
     }
   }
-
-  console.log('[SignIn] Rendering, isLoading:', isLoading)
 
   if (isLoading) {
     return (
       <div className="mt-24 p-6 flex flex-col items-center justify-center min-h-[400px]">
         <div className="text-white mb-4">Loading...</div>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-        <div className="text-gray-400 text-sm mt-4">Checking authentication...</div>
       </div>
     )
   }
@@ -98,9 +82,6 @@ function SignInContent() {
         >
           Sign In with AWS Cognito
         </button>
-        <div className="mt-4 text-xs text-gray-500 text-center">
-          Debug: redirectUrl = {redirectUrl || 'none'}
-        </div>
       </div>
     </div>
   )

@@ -18,6 +18,7 @@ function AuthCallbackContent() {
         const code = searchParams.get('code')
         const error = searchParams.get('error')
         const errorDescription = searchParams.get('error_description')
+        const state = searchParams.get('state')
 
         if (error) {
           console.error('OAuth error:', error, errorDescription)
@@ -32,6 +33,18 @@ function AuthCallbackContent() {
         }
 
         console.log('Processing OAuth callback with code:', code.substring(0, 10) + '...')
+        
+        // Extract redirect URL from state parameter or use default
+        let redirectUrl = '/chat'
+        try {
+          if (state) {
+            const decodedState = JSON.parse(atob(state))
+            redirectUrl = decodedState.redirect_url || '/chat'
+          }
+        } catch {
+          // If state parsing fails, use default
+          console.log('Could not parse state parameter, using default redirect')
+        }
         
         // Set up Hub listener for auth events
         hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
@@ -50,10 +63,17 @@ function AuthCallbackContent() {
             case 'signedIn':
               console.log('User signed in successfully via OAuth')
               setStatus('success')
-              // Redirect to chat after successful authentication
+              // Redirect to intended destination after successful authentication
               setTimeout(() => {
                 if (mounted) {
-                  window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
+                  // Handle both relative paths and full URLs
+                  if (redirectUrl.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+                    window.location.href = redirectUrl
+                  } else if (redirectUrl.startsWith('/')) {
+                    window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${redirectUrl}`
+                  } else {
+                    window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat`
+                  }
                 }
               }, 1000)
               break
@@ -72,7 +92,14 @@ function AuthCallbackContent() {
             setStatus('success')
             setTimeout(() => {
               if (mounted) {
-                window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
+                // Handle both relative paths and full URLs
+                if (redirectUrl.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+                  window.location.href = redirectUrl
+                } else if (redirectUrl.startsWith('/')) {
+                  window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${redirectUrl}`
+                } else {
+                  window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat`
+                }
               }
             }, 1000)
           }

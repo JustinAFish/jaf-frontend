@@ -15,10 +15,10 @@ const amplifyConfig: ResourcesConfig = {
           domain: process.env.NEXT_PUBLIC_AWS_COGNITO_DOMAIN || '',
           scopes: ['email', 'openid', 'profile'],
           redirectSignIn: [
-            process.env.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN || '', // Removed localhost fallback
+            process.env.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN || 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/callback',
           ],
           redirectSignOut: [
-            process.env.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT || '', // Removed localhost fallback
+            process.env.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT || 'https://main.d325l4yh4si1cx.amplifyapp.com/',
           ],
           responseType: 'code' as const,
         },
