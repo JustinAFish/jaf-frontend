@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
 import AmplifyProvider from '@/components/AmplifyProvider'
+import { AuthDebug } from '@/components/AuthDebug'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,6 +41,7 @@ export default function RootLayout({
           >
             <Navbar />
             {children}
+            <AuthDebug />
           </ThemeProvider>
         </body>
       </html>
