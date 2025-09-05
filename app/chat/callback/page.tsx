@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Hub } from 'aws-amplify/utils'
+import { Loading } from '@/components/ui/loading'
 
 function AuthCallbackContent() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
@@ -133,11 +134,10 @@ function AuthCallbackContent() {
 
   if (status === 'processing') {
     return (
-      <div className="mt-24 p-6 flex flex-col items-center justify-center min-h-[400px]">
-        <div className="text-white mb-4">Processing authentication...</div>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-        <p className="text-gray-400 text-sm mt-4">Exchanging authorization code for tokens...</p>
-      </div>
+      <Loading 
+        message="Processing authentication..." 
+        subMessage="Exchanging authorization code for tokens..."
+      />
     )
   }
 
@@ -170,12 +170,7 @@ function AuthCallbackContent() {
 
 export default function AuthCallback() {
   return (
-    <Suspense fallback={
-      <div className="mt-24 p-6 flex flex-col items-center justify-center min-h-[400px]">
-        <div className="text-white mb-4">Loading...</div>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-      </div>
-    }>
+    <Suspense fallback={<Loading />}>
       <AuthCallbackContent />
     </Suspense>
   )

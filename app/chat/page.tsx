@@ -11,81 +11,44 @@ import { ChatMessages } from "@/components/ChatMessages";
 import { ChatInput } from "@/components/ChatInput";
 import { useChatStore } from "@/store/chatStore";
 import Image from "next/image";
-import { getCurrentUser } from 'aws-amplify/auth';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import { Loading } from '@/components/ui/loading';
 
 export default function ChatPage() {
   // State management
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showExpandedSources] = useState(false);
   const router = useRouter();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { getCurrentChat, addMessage, ensureActiveChat, fetchUserChats } =
     useChatStore();
   const currentChat = getCurrentChat();
 
-  // Check authentication on mount
+  // Redirect if not authenticated
   useEffect(() => {
-    let mounted = true;
-    
-    const checkAuth = async () => {
-      try {
-        await getCurrentUser();
-        if (mounted) {
-          setIsAuthLoading(false);
-        }
-      } catch {
-        if (mounted) {
-          console.log('User not authenticated, redirecting to sign in');
-          // Use Next.js router for internal navigation
-          const redirectUrl = encodeURIComponent(window.location.pathname);
-          router.push(`/chat/sign-in?redirect_url=${redirectUrl}`);
-        }
-      }
-    };
-
-    checkAuth();
-    
-    return () => {
-      mounted = false;
-    };
-  }, [router]);
-
-  // Ensure an active chat is available when the component mounts
-  useEffect(() => {
-    if (!isAuthLoading) {
-      ensureActiveChat();
+    if (!isAuthLoading && !isAuthenticated) {
+      const redirectUrl = encodeURIComponent(window.location.pathname);
+      router.push(`/chat/sign-in?redirect_url=${redirectUrl}`);
     }
-  }, [ensureActiveChat, isAuthLoading]);
+  }, [isAuthenticated, isAuthLoading, router]);
 
-  // Add this useEffect to fetch chats when the component mounts
+  // Ensure an active chat is available when authenticated
   useEffect(() => {
-    if (!isAuthLoading) {
-      // Fetch user chats when the page loads
+    if (isAuthenticated && !isAuthLoading) {
+      ensureActiveChat();
       fetchUserChats();
     }
-  }, [fetchUserChats, isAuthLoading]);
+  }, [ensureActiveChat, fetchUserChats, isAuthenticated, isAuthLoading]);
 
   // Show loading while checking authentication
   if (isAuthLoading) {
-    return (
-      <div className="flex h-[calc(100vh-2rem)] items-center justify-center">
-        <div className="absolute inset-0 -z-10">
-          <Image
-            src="/data-background.jpeg"
-            alt="Background"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/70"></div>
-        </div>
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Checking authentication...</p>
-        </div>
-      </div>
-    );
+    return <Loading message="Checking authentication..." />;
+  }
+
+  // Don't render anything if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
   }
 
   // Handle sending a new message

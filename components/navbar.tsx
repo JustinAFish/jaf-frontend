@@ -8,7 +8,8 @@ import {
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
-import { useState, useEffect } from 'react'
+import { useAuth } from '@/lib/hooks/useAuth'
+import Link from 'next/link'
 
 export function Navbar() {
   const pathname = usePathname();
@@ -119,50 +120,15 @@ export function Navbar() {
 }
 
 function AuthStatus() {
-  const [username, setUsername] = useState<string | null>(null)
+  const { user, isAuthenticated, signOut } = useAuth()
 
-  useEffect(() => {
-    let mounted = true
-    ;(async () => {
-      try {
-        const { getCurrentUser } = await import('aws-amplify/auth')
-        const user = await getCurrentUser()
-        if (mounted) {
-          // Try to get email from user attributes, fallback to username
-          const userObj = user as { 
-            signInDetails?: { loginId?: string }
-            username?: string
-            attributes?: { email?: string }
-          }
-          const userAttributes = userObj?.signInDetails?.loginId || 
-                               userObj?.username || 
-                               userObj?.attributes?.email || 
-                               'User'
-          setUsername(userAttributes)
-        }
-      } catch {
-        if (mounted) setUsername(null)
-      }
-    })()
-    return () => { mounted = false }
-  }, [])
-
-  if (username) {
+  if (isAuthenticated && user) {
     return (
       <div className="flex items-center gap-4">
-        <span className="text-white">{username}</span>
+        <span className="text-white">{user.username}</span>
         <button
           className="text-white hover:text-primary/80"
-          onClick={async () => {
-            try {
-              const { signOut } = await import('aws-amplify/auth')
-              await signOut()
-            } catch {
-              /* ignore */
-            }
-            // reload to update auth state
-            window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/'
-          }}
+          onClick={signOut}
         >
           Sign out
         </button>
@@ -171,8 +137,8 @@ function AuthStatus() {
   }
 
   return (
-    <a href="https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in" className="text-white hover:text-primary/80">
+    <Link href="/chat/sign-in" className="text-white hover:text-primary/80">
       Sign in
-    </a>
+    </Link>
   )
 }
