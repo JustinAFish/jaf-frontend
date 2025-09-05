@@ -1,12 +1,14 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { getCurrentUser } from 'aws-amplify/auth'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Hub } from 'aws-amplify/utils'
 
 function AuthCallbackContent() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
+  const [hasRedirected, setHasRedirected] = useState(false)
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     let mounted = true
@@ -28,7 +30,10 @@ function AuthCallbackContent() {
 
         if (!code) {
           console.log('No authorization code found, redirecting to sign in')
-          window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in'
+          if (!hasRedirected) {
+            setHasRedirected(true)
+            router.push('/chat/sign-in')
+          }
           return
         }
 
@@ -50,7 +55,7 @@ function AuthCallbackContent() {
         hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
           console.log('[Auth Hub Event]:', payload.event)
           
-          if (!mounted) return
+          if (!mounted || hasRedirected) return
           
           switch (payload.event) {
             case 'signInWithRedirect':
@@ -65,14 +70,13 @@ function AuthCallbackContent() {
               setStatus('success')
               // Redirect to intended destination after successful authentication
               setTimeout(() => {
-                if (mounted) {
-                  // Handle both relative paths and full URLs
-                  if (redirectUrl.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
-                    window.location.href = redirectUrl
-                  } else if (redirectUrl.startsWith('/')) {
-                    window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${redirectUrl}`
+                if (mounted && !hasRedirected) {
+                  setHasRedirected(true)
+                  // Use Next.js router for internal navigation
+                  if (redirectUrl.startsWith('/')) {
+                    router.push(redirectUrl)
                   } else {
-                    window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat`
+                    router.push('/chat')
                   }
                 }
               }, 1000)
@@ -88,17 +92,16 @@ function AuthCallbackContent() {
         try {
           const user = await getCurrentUser()
           console.log('User already authenticated:', user)
-          if (mounted) {
+          if (mounted && !hasRedirected) {
             setStatus('success')
             setTimeout(() => {
-              if (mounted) {
-                // Handle both relative paths and full URLs
-                if (redirectUrl.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
-                  window.location.href = redirectUrl
-                } else if (redirectUrl.startsWith('/')) {
-                  window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${redirectUrl}`
+              if (mounted && !hasRedirected) {
+                setHasRedirected(true)
+                // Use Next.js router for internal navigation
+                if (redirectUrl.startsWith('/')) {
+                  router.push(redirectUrl)
                 } else {
-                  window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat`
+                  router.push('/chat')
                 }
               }
             }, 1000)
@@ -126,7 +129,7 @@ function AuthCallbackContent() {
         hubUnsubscribe()
       }
     }
-  }, [searchParams])
+  }, [searchParams, router, hasRedirected])
 
   if (status === 'processing') {
     return (
@@ -155,7 +158,7 @@ function AuthCallbackContent() {
           There was an error processing your authentication. Please check the browser console for details.
         </p>
         <button
-          onClick={() => window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in'}
+          onClick={() => router.push('/chat/sign-in')}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
         >
           Try Again
