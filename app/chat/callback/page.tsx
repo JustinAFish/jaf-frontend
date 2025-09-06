@@ -1,15 +1,12 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { getCurrentUser } from 'aws-amplify/auth'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Hub } from 'aws-amplify/utils'
-import { Loading } from '@/components/ui/loading'
 
 function AuthCallbackContent() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
-  const [hasRedirected, setHasRedirected] = useState(false)
   const searchParams = useSearchParams()
-  const router = useRouter()
 
   useEffect(() => {
     let mounted = true
@@ -30,12 +27,26 @@ function AuthCallbackContent() {
         }
 
         if (!code) {
-          console.log('No authorization code found, redirecting to sign in')
-          if (!hasRedirected) {
-            setHasRedirected(true)
-            router.push('/chat/sign-in')
+          console.log('No authorization code found, checking if user is already authenticated')
+          // Check if user is already authenticated before redirecting
+          try {
+            await getCurrentUser()
+            console.log('User already authenticated, redirecting to chat')
+            if (mounted) {
+              setStatus('success')
+              setTimeout(() => {
+                if (mounted) {
+                  window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat'
+                }
+              }, 1000)
+            }
+            return
+          } catch {
+            // User not authenticated and no code, redirect to sign in
+            console.log('User not authenticated, redirecting to sign in')
+            window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in'
+            return
           }
-          return
         }
 
         console.log('Processing OAuth callback with code:', code.substring(0, 10) + '...')
@@ -56,7 +67,7 @@ function AuthCallbackContent() {
         hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
           console.log('[Auth Hub Event]:', payload.event)
           
-          if (!mounted || hasRedirected) return
+          if (!mounted) return
           
           switch (payload.event) {
             case 'signInWithRedirect':
@@ -71,13 +82,14 @@ function AuthCallbackContent() {
               setStatus('success')
               // Redirect to intended destination after successful authentication
               setTimeout(() => {
-                if (mounted && !hasRedirected) {
-                  setHasRedirected(true)
-                  // Use Next.js router for internal navigation
-                  if (redirectUrl.startsWith('/')) {
-                    router.push(redirectUrl)
+                if (mounted) {
+                  // Handle both relative paths and full URLs
+                  if (redirectUrl.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+                    window.location.href = redirectUrl
+                  } else if (redirectUrl.startsWith('/')) {
+                    window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${redirectUrl}`
                   } else {
-                    router.push('/chat')
+                    window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat`
                   }
                 }
               }, 1000)
@@ -93,16 +105,17 @@ function AuthCallbackContent() {
         try {
           const user = await getCurrentUser()
           console.log('User already authenticated:', user)
-          if (mounted && !hasRedirected) {
+          if (mounted) {
             setStatus('success')
             setTimeout(() => {
-              if (mounted && !hasRedirected) {
-                setHasRedirected(true)
-                // Use Next.js router for internal navigation
-                if (redirectUrl.startsWith('/')) {
-                  router.push(redirectUrl)
+              if (mounted) {
+                // Handle both relative paths and full URLs
+                if (redirectUrl.startsWith('https://main.d325l4yh4si1cx.amplifyapp.com')) {
+                  window.location.href = redirectUrl
+                } else if (redirectUrl.startsWith('/')) {
+                  window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com${redirectUrl}`
                 } else {
-                  router.push('/chat')
+                  window.location.href = `https://main.d325l4yh4si1cx.amplifyapp.com/chat`
                 }
               }
             }, 1000)
@@ -130,14 +143,15 @@ function AuthCallbackContent() {
         hubUnsubscribe()
       }
     }
-  }, [searchParams, router, hasRedirected])
+  }, [searchParams])
 
   if (status === 'processing') {
     return (
-      <Loading 
-        message="Processing authentication..." 
-        subMessage="Exchanging authorization code for tokens..."
-      />
+      <div className="mt-24 p-6 flex flex-col items-center justify-center min-h-[400px]">
+        <div className="text-white mb-4">Processing authentication...</div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <p className="text-gray-400 text-sm mt-4">Exchanging authorization code for tokens...</p>
+      </div>
     )
   }
 
@@ -158,7 +172,7 @@ function AuthCallbackContent() {
           There was an error processing your authentication. Please check the browser console for details.
         </p>
         <button
-          onClick={() => router.push('/chat/sign-in')}
+          onClick={() => window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in'}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
         >
           Try Again
@@ -170,7 +184,12 @@ function AuthCallbackContent() {
 
 export default function AuthCallback() {
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={
+      <div className="mt-24 p-6 flex flex-col items-center justify-center min-h-[400px]">
+        <div className="text-white mb-4">Loading...</div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    }>
       <AuthCallbackContent />
     </Suspense>
   )
