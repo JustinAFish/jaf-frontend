@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -111,7 +111,9 @@ export function Navbar() {
 
         {/** Simple Amplify auth state: show username when signed in, otherwise a Sign In link */}
         <div>
-          <AuthStatus />
+          <div className="p-2 rounded-full bg-transparent hover:bg-slate-500 transition-colors duration-200 flex items-center gap-2">
+            <AuthStatus />
+          </div>
         </div>
       </NavbarItem>
     </NextUINavbar>
@@ -119,60 +121,67 @@ export function Navbar() {
 }
 
 function AuthStatus() {
-  const [username, setUsername] = useState<string | null>(null)
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true
-    ;(async () => {
+    let mounted = true;
+    (async () => {
       try {
-        const { getCurrentUser } = await import('aws-amplify/auth')
-        const user = await getCurrentUser()
+        const { getCurrentUser } = await import("aws-amplify/auth");
+        const user = await getCurrentUser();
         if (mounted) {
           // Try to get email from user attributes, fallback to username
-          const userObj = user as { 
-            signInDetails?: { loginId?: string }
-            username?: string
-            attributes?: { email?: string }
-          }
-          const userAttributes = userObj?.signInDetails?.loginId || 
-                               userObj?.username || 
-                               userObj?.attributes?.email || 
-                               'User'
-          setUsername(userAttributes)
+          const userObj = user as {
+            signInDetails?: { loginId?: string };
+            username?: string;
+            attributes?: { email?: string };
+          };
+          const userAttributes =
+            userObj?.signInDetails?.loginId ||
+            userObj?.username ||
+            userObj?.attributes?.email ||
+            "User";
+          setUsername(userAttributes);
         }
       } catch {
-        if (mounted) setUsername(null)
+        if (mounted) setUsername(null);
       }
-    })()
-    return () => { mounted = false }
-  }, [])
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   if (username) {
     return (
       <div className="flex items-center gap-4">
-        <span className="text-white">{username}</span>
+        {/* <span className="text-white">{username}</span> */}
         <button
           className="text-white hover:text-primary/80"
           onClick={async () => {
             try {
-              const { signOut } = await import('aws-amplify/auth')
-              await signOut()
+              const { signOut } = await import("aws-amplify/auth");
+              await signOut();
             } catch {
               /* ignore */
             }
             // reload to update auth state
-            window.location.href = 'https://main.d325l4yh4si1cx.amplifyapp.com/'
+            window.location.href =
+              "https://main.d325l4yh4si1cx.amplifyapp.com/";
           }}
         >
           Sign out
         </button>
       </div>
-    )
+    );
   }
 
   return (
-    <a href="https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in" className="text-white hover:text-primary/80">
+    <a
+      href="https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in"
+      className="text-white hover:text-primary/80"
+    >
       Sign in
     </a>
-  )
+  );
 }
