@@ -65,7 +65,7 @@ export default function AmplifyProvider({ children }: { children: React.ReactNod
       const error = urlParams.get('error')
       
       if (error) {
-        console.error('OAuth error in URL:', error, urlParams.get('error_description'))
+        console.error('[AmplifyProvider] OAuth error in URL:', error, urlParams.get('error_description'))
         return
       }
       
@@ -81,11 +81,15 @@ export default function AmplifyProvider({ children }: { children: React.ReactNod
         } catch (error) {
           console.error('[AmplifyProvider] Error processing OAuth callback:', error)
         }
+      } else if (code) {
+        console.log('[AmplifyProvider] OAuth code detected but not on callback page, ignoring')
       }
     }
     
-    // Process OAuth callback if present
-    processOAuthCallback()
+    // Add a small delay before processing to ensure DOM is ready
+    setTimeout(() => {
+      processOAuthCallback()
+    }, 100)
     
     // Debug logging
     console.log('[Amplify] Configuration:', {

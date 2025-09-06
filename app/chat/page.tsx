@@ -24,25 +24,45 @@ export default function ChatPage() {
 
   // Check authentication on mount
   useEffect(() => {
+    let mounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
     const checkAuth = async () => {
       try {
+        // Add a small delay to let Amplify initialize properly
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
         const user = await getCurrentUser();
         console.log('Chat page: User authenticated:', user.username);
-        setIsAuthLoading(false);
+        if (mounted) {
+          setIsAuthLoading(false);
+        }
       } catch (error) {
-        console.log('Chat page: User not authenticated:', error);
+        console.log('Chat page: Authentication check failed:', error, `(attempt ${retryCount + 1}/${maxRetries})`);
         
-        // Add a small delay to prevent rapid redirects in case of race conditions
-        setTimeout(() => {
-          // User not authenticated, redirect to sign in
+        // Retry authentication check a few times before redirecting
+        if (retryCount < maxRetries && mounted) {
+          retryCount++;
+          setTimeout(() => {
+            if (mounted) {
+              checkAuth();
+            }
+          }, 500 * retryCount); // Exponential backoff
+        } else if (mounted) {
+          // All retries failed, user is definitely not authenticated
+          console.log('Chat page: All authentication retries failed, redirecting to sign in');
           const signInUrl = `https://main.d325l4yh4si1cx.amplifyapp.com/chat/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`
-          console.log('Chat page: Redirecting to sign in:', signInUrl);
-          window.location.href = signInUrl
-        }, 100);
+          window.location.href = signInUrl;
+        }
       }
     };
 
     checkAuth();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Ensure an active chat is available when the component mounts
